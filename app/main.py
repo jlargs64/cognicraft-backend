@@ -1,15 +1,10 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import v1_router
-from app.core.logging_config import configure_logging
 from app.core.settings import get_settings
 
-# Env set up
-load_dotenv()
 settings = get_settings()
-configure_logging()
 
 # Initialize the app
 app = FastAPI(openapi_url=settings.openapi_url)

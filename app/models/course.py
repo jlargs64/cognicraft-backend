@@ -1,12 +1,14 @@
 from typing import List
 
-from odmantic import EmbeddedModel
+from odmantic import Field, Model, Reference
 
 from app.models.module import Module
+from app.models.user import User
 
 
-class User(EmbeddedModel):
-    name: str
-    description: str
-    is_private: bool
+class Course(Model):
+    name: str = Field(gt=0)
+    description: str = Field(gt=0)
+    is_private: bool = Field(default=True)
     modules: List[Module]
+    owner: User = Reference()

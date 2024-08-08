@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     app_name: str = "CogniCraft API"
     env: str = "dev"
     openapi_url: str = "/openapi.json"
+    mongodb_url: str
 
 
 @lru_cache

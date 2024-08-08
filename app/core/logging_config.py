@@ -8,7 +8,7 @@ from app.core.settings import Settings, get_settings
 def configure_logging() -> None:
     """Configure the JSON logger"""
     logger = logging.getLogger()
-    _set_logging_level(logger)
+    _set_logging_level(logger, get_settings())
     _set_handlers(logger)
 
 
