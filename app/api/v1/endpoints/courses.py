@@ -28,3 +28,12 @@ async def get_course(id: ObjectId):
 @router.put("/courses")
 async def create_course(request: CreateCourseRequest) -> CreateCourseResponse:
     return get_course_service().generate_course_outline(request.course_query)
+
+
+@router.delete("/users/{user_id}")
+async def delete_course(id: ObjectId):
+    course = await mongo.find_one(Course, Course.id == id)
+    if course is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    await mongo.delete(course)
+    return course
