@@ -1,0 +1,34 @@
+version: "3"
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongodb
+      - milvus
+    env_file:
+      - .env
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    env_file:
+      - .env
+
+  milvus:
+    image: milvusdb/milvus:latest
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    volumes:
+      - milvus_data:/var/lib/milvus
+    env_file:
+      - .env
+
+volumes:
+  mongodb_data:
+  milvus_data:
