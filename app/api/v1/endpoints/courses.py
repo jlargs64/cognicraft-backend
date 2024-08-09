@@ -1,39 +1,47 @@
-from fastapi import APIRouter, HTTPException, status
+from typing import List
+
+from fastapi import APIRouter, BackgroundTasks, Depends
 from odmantic import ObjectId
 
-from app.db.mongo import get_mongo
 from app.models.course import Course
 from app.schema.v1.course.course_request import CreateCourseRequest
 from app.schema.v1.course.course_response import CreateCourseResponse
 from app.services.course_service import CourseService, get_course_service
 
 router = APIRouter()
-mongo = get_mongo()
-course_service = get_course_service()
 
 
-@router.get("/courses")
-async def get_all_courses():
-    return await get_mongo().find(Course)
+@router.get("/")
+async def get_all_courses(
+    course_service: CourseService = Depends(get_course_service),
+) -> List[Course]:
+    return await course_service.get_all_courses()
 
 
-@router.get("/courses/{course_id}")
-async def get_course(id: ObjectId):
-    course = await mongo.find_one(Course, Course.id == id)
-    if course is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    return course
+@router.get("/{id}")
+async def get_course(
+    id: ObjectId,
+    course_service: CourseService = Depends(get_course_service),
+) -> Course:
+    return await course_service.get_course_by_id(id)
 
 
-@router.put("/courses")
-async def create_course(request: CreateCourseRequest) -> CreateCourseResponse:
-    return get_course_service().generate_course_outline(request.course_query)
+@router.post("/")
+async def create_course(
+    request: CreateCourseRequest,
+    background_tasks: BackgroundTasks,
+    course_service: CourseService = Depends(get_course_service),
+) -> CreateCourseResponse:
+    response = await course_service.generate_course_outline(request.course_query)
+    background_tasks.add_task(
+        course_service.generate_course_content, **response.model_dump()
+    )
+    return response
 
 
-@router.delete("/users/{user_id}")
-async def delete_course(id: ObjectId):
-    course = await mongo.find_one(Course, Course.id == id)
-    if course is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    await mongo.delete(course)
-    return course
+@router.delete("/{id}")
+async def delete_course(
+    id: ObjectId,
+    course_service: CourseService = Depends(get_course_service),
+) -> Course:
+    return await course_service.delete_course(id)

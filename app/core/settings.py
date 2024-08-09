@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     env: str = "dev"
     openapi_url: str = "/openapi.json"
     mongodb_url: str
+    secret_hash_key: str
 
 
 @lru_cache

@@ -1,14 +1,19 @@
 from typing import List
 
-from odmantic import Field, Model, Reference
+from odmantic import Field, Model
+from pydantic import BaseModel
 
-from app.models.module import Module
-from app.models.user import User
+from app.models.module import Module, ModuleUpdateSchema
 
 
 class Course(Model):
-    name: str = Field(gt=0)
-    description: str = Field(gt=0)
-    is_private: bool = Field(default=True)
+    name: str
+    description: str
+    # is_private: bool = Field(default=True)
     modules: List[Module]
-    owner: User = Reference()
+
+
+class CourseUpdateSchema(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    modules: List[ModuleUpdateSchema] | None = None
