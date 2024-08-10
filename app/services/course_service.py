@@ -1,6 +1,5 @@
 import json
 import logging
-from functools import lru_cache
 from typing import List
 
 from fastapi import Depends, HTTPException, status
@@ -26,14 +25,15 @@ class CourseService:
         logging.info("Successfully setup CourseService!")
 
     async def generate_course_outline(self, course_query: str) -> CreateCourseResponse:
-        response = self._outline_chain.invoke(
+        response = await self._outline_chain.ainvoke(
             {
                 "input": course_query,
             }
-        ).content.strip()
-        logging.debug("Generated a course outline", response)
+        )
+        content = response.content.strip()
+        logging.debug("Generated a course outline", content)
         try:
-            res_json = json.loads(response)
+            res_json = json.loads(content)
             title = res_json["title"]
             description = res_json["description"]
             modules_str_list = res_json["modules"]
@@ -70,7 +70,7 @@ class CourseService:
         for i, module in enumerate(modules):
             chapter: int = i + 1
             try:
-                module_content = self._module_chain.invoke(
+                response = await self._module_chain.ainvoke(
                     {
                         "input": f"""Course Title: { title}\n
                         Course Description: { description}\n
@@ -78,7 +78,8 @@ class CourseService:
                         Module Title: {module}\n
                         Module Number:{chapter}"""
                     }
-                ).content.strip()
+                )
+                module_content = response.content.strip()
                 full_modules.append(
                     ModuleUpdateSchema(
                         title=title, content=module_content, number=chapter
@@ -119,6 +120,5 @@ class CourseService:
         return await self._engine.delete(course)
 
 
-@lru_cache
 def get_course_service(engine: AIOEngine = Depends(get_engine)) -> CourseService:
     return CourseService(engine=engine)
