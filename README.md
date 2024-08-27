@@ -2,6 +2,14 @@
 
 The backend for the CogniCraft app.
 
+## Features
+
+Any features checked off means they're completed.
+
+- [] Create a simple course with examples and practice problems on any topic you'd like to learn about!
+- [] Ask questions about your course via RAG!
+- [] Share your courses with others by marking them public or private!
+
 ## About
 
 ### What is CogniCraft?
